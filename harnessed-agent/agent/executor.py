@@ -1,6 +1,13 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env relative to this file, not CWD — fixes `python -m agent` from any directory
+_here = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=_here / ".env", override=False)
 
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
@@ -25,10 +32,16 @@ SYSTEM_PROMPT = (
     "finish()."
 )
 
-MAX_ITERATIONS = 8
+MAX_ITERATIONS = 5
 
 def _build_agent():
     api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is missing. "
+            "Copy .env.example to .env and set GROQ_API_KEY (see README.md:46). "
+            "Current .env looked at: harnessed-agent/.env"
+        )
     model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
 
     model = ChatGroq(

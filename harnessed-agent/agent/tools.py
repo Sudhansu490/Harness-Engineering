@@ -28,26 +28,72 @@ async def click_star_button(runtime: ToolRuntime[HarnessContext]) -> str:
     from agent.verify import repo_is_starred
 
     page = runtime.context.page
-    
+
     if await repo_is_starred(page):
         return "Repository is already starred."
 
-    button = page.locator(
-        'button[aria-label*="Star this repository"],'
-        'form[action*="/star"]:not([action*="/unstar"]) button[type="submit"]'
-    ).first
+    # Try multiple selectors — GitHub changes its DOM often.
+    # Ordered from most specific to most generic.
+    candidates = [
+        'button[aria-label*="Star this repository"]',
+        'button[data-testid="star-button"]',
+        'button:has-text("Star")',
+        'form[action*="/star"]:not([action*="/unstar"]) button[type="submit"]',
+        '[aria-label*="Star this repository"]',
+    ]
 
-    if await button.count() == 0:
-        return "No 'Star' button found on the current page."
+    button = None
+    for sel in candidates:
+        loc = page.locator(sel).first
+        try:
+            if await loc.count() > 0 and await loc.is_visible():
+                button = loc
+                break
+        except Exception:
+            continue
+
+    if button is None:
+        # Fallback: any visible button containing "Star" but not "Starred"/"Unstar"
+        fallback = page.locator('button:visible').filter(has_text="Star")
+        try:
+            count = await fallback.count()
+            for i in range(min(count, 5)):
+                try:
+                    cand = fallback.nth(i)
+                    text = (await cand.inner_text() or "").strip()
+                    # Avoid "Starred" / "Unstar" — those mean already starred
+                    if text == "Star" and await cand.is_visible():
+                        button = cand
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+    if button is None:
+        # Debug help for next run — log what buttons exist
+        try:
+            all_btns = await page.locator('button:visible').all_inner_texts()
+            preview = ", ".join([t.strip()[:20] for t in all_btns[:10] if t.strip()])
+            return f"No 'Star' button found on the current page. Visible buttons: [{preview}] url={page.url}"
+        except Exception:
+            return f"No 'Star' button found on the current page. url={page.url}"
 
     try:
-        await button.click(force=True)
-    except Exception:
-        await page.wait_for_timeout(500)
-        raise
+        await button.click(timeout=5000)
+    except Exception as e:
+        # Retry once with force click after short wait
+        await page.wait_for_timeout(800)
+        try:
+            await button.click(force=True, timeout=5000)
+        except Exception:
+            return f"Failed to click Star button: {e}"
 
     await page.wait_for_load_state("domcontentloaded")
-    await page.wait_for_timeout(500)
+    await page.wait_for_timeout(800)
+    # Verify after click
+    if await repo_is_starred(page):
+        return "Clicked the Star button — now starred."
     return "Clicked the Star button."
 
 

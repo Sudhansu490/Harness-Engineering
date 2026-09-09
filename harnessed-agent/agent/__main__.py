@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Resolve .env next to harnessed-agent/, not CWD
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env", override=False)
 
 import asyncio
 from agent.browser import harness_browser

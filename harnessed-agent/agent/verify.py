@@ -26,10 +26,24 @@ async def repo_is_starred(page: Page) -> bool:
 
 
 async def read_star_count(page: Page) -> str | None:
-    counter = page.locator("#repo-stars-counter-star")
-    if await counter.count() == 0:
-        return None
-    return await counter.first.get_attribute("title") or await counter.first.inner_text()
+    # Try multiple selectors — GitHub changes IDs often (old: #repo-stars-counter-star)
+    selectors = [
+        "#repo-stars-counter-star",
+        'a[href$="/stargazers"]',
+        'a[href*="/stargazers"] span',
+        '[data-testid="star-count"]',
+        'span[data-component="counter"]',
+    ]
+    for sel in selectors:
+        try:
+            loc = page.locator(sel).first
+            if await loc.count() > 0:
+                val = await loc.get_attribute("title") or await loc.inner_text()
+                if val and val.strip():
+                    return val.strip()
+        except Exception:
+            continue
+    return None
 
 
 async def verify(page: Page) -> dict:
