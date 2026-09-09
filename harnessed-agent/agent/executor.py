@@ -29,7 +29,7 @@ MAX_ITERATIONS = 8
 
 def _build_agent():
     api_key = os.environ.get("GROQ_API_KEY")
-    model_name = os.environ.get("GROQ_MODEL", "llama3-70b-8192")
+    model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
 
     model = ChatGroq(
         model_name=model_name,
