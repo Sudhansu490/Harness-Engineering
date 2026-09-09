@@ -3,6 +3,9 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from playwright.async_api import async_playwright, Page, Browser
 
+# asynccontextmanager = for `async with` — makes `harness_browser()` give a page and auto-close browser even if agent crashes
+# playwright.async_api = for browser+tab — gives `async_playwright`(engine), `Page`(tab), `Browser`(chrome instance) for automation
+
 
 @asynccontextmanager
 async def harness_browser(headless: bool = False):

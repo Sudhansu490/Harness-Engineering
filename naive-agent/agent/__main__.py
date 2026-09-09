@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations     # for type hints — lets us write `page: Page` without Python error, for clean typing
 
 import os
 
@@ -19,6 +19,7 @@ async def main() -> None:
     async with harness_browser(headless=False) as page:
         await run_naive_agent(page,repo_url)
 
+# page = browser tab (like Chrome tab) — agent uses it to open and click the GitHub page
 
 if __name__ == "__main__":
     asyncio.run(main())

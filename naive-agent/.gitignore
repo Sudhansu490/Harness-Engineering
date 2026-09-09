@@ -1,34 +1,30 @@
 # Python-generated files
 __pycache__/
-*.py[oc]
+*.py[cod]
+*.pyd
+*.egg-info/
+
+# Build artifacts
 build/
 dist/
 wheels/
-*.egg-info
 
 # Virtual environments
-.venv
-
-# Ignore Python cache files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Ignore virtual environment
 venv/
 .venv/
 
-# Ignore Jupyter notebook checkpoints
+# Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Ignore Python log files
+# Logs
 *.log
 
-# Ignore IDE and editor settings
-.idea
-.vscode
+# IDE and editor settings
+.idea/
+.vscode/
 .jbeval
 
+# Environment variables / secrets
 .env
+.env.*
 *.lock
