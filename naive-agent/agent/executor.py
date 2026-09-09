@@ -7,9 +7,10 @@ from langchain.messages import HumanMessage
 from langchain_groq import ChatGroq
 from playwright.async_api import Page
 
-from agent.context import HarnessContext
+from agent.context import HarnessContext      # data box for page + repo_url — carries the browser tab to tools
 from agent.tools import TOOLS
-from agent.verify import verify
+from agent.verify import verify               # checker — reads DOM after agent finishes to see if Star actually worked 
+
 
 SYSTEM_PROMPT = (
     "You are a browser agent. Your only job is to star a GitHub repository "
@@ -20,7 +21,7 @@ SYSTEM_PROMPT = (
 
 def _build_agent():
     api_key = os.environ.get("GROQ_API_KEY")
-    model_name = os.environ.get("GROQ_MODEL", "llama3-70b-8192")
+    model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
 
     model = ChatGroq(
         model_name=model_name,
