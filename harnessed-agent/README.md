@@ -12,7 +12,7 @@ It illustrates the critical need for "Harness Engineering" — verifying an AI a
 - **Playwright Environment** – Provides a thread-safe, asynchronous browser environment for the agent to navigate and interact with web pages.
 
 **Harnessed variant adds:**
-- **IterationGuardMiddleware** – caps at `MAX_ITERATIONS=8` (`agent/middleware.py`)
+- **IterationGuardMiddleware** – caps at `MAX_ITERATIONS=5` (`agent/executor.py:36`, env-configurable via `.env`)
 - **LoginGuardMiddleware** – detects GitHub login wall and injects credentials (`GITHUB_USERNAME`/`GITHUB_PASSWORD`)
 - **VerifyOnFinishMiddleware** + **ContextualPromptMiddleware** – re-checks DOM truth on `finish()` and feeds corrections
 
@@ -51,6 +51,7 @@ GITHUB_PASSWORD=your_github_password
 # Optional:
 # GROQ_MODEL=openai/gpt-oss-20b   # default — configurable, used in agent/executor.py
 # TARGET_REPO_URL=https://github.com/codebasics-community/nanoagents  # default in agent/__main__.py
+# MAX_ITERATIONS=5  # default — configurable, used in agent/executor.py
 ```
 
 ### Running the Project
@@ -77,7 +78,7 @@ The **harnessed** agent handles the login wall and verifies DOM truth via middle
 ```text
 [harnessed] Agent finished
   DOM reality   : starred=True, reason='star button shows 'Unstar''
-  Iterations used: 3/8
+  Iterations used: 3/5
 
 [harnessed] SUCCESS: repo is genuinely starred.
 ```
@@ -87,7 +88,7 @@ If it cannot star within limits:
 ```text
 [harnessed] Agent finished
   DOM reality   : starred=False, reason='star button still shows 'Star' -- action did not take effect'
-  Iterations used: 8/8
+  Iterations used: 5/5
 
 [harnessed] FAILURE: max iterations reached without success.
 ```

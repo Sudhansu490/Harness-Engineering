@@ -32,7 +32,12 @@ SYSTEM_PROMPT = (
     "finish()."
 )
 
-MAX_ITERATIONS = 5
+try:
+    MAX_ITERATIONS = int(os.getenv("MAX_ITERATIONS", "5"))
+except ValueError:
+    raise ValueError(
+        f"MAX_ITERATIONS must be an integer, got {os.getenv('MAX_ITERATIONS')!r}."
+    ) from None
 
 def _build_agent():
     api_key = os.environ.get("GROQ_API_KEY")
